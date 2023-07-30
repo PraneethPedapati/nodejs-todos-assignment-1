@@ -67,3 +67,21 @@ app.get("/agenda", async (req, res) => {
   let resp = await db.all(sql);
   res.send(resp);
 });
+
+app.post("/todos/", async (req, res) => {
+  const todoDetails = req.body;
+  const { id, todo, status, category, dueDate, priority } = todoDetails;
+
+  let sql = `INSERT INTO todo (id, todo, status ,priority, category, due_date)
+    VALUES (
+        ${id},
+        '${todo}',
+        '${status}',
+        '${priority}',
+        '${category}',
+        '${dueDate}'
+        )`;
+
+  let resp = await db.run(sql);
+  res.send("Todo Successfully Added");
+});

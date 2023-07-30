@@ -2,8 +2,22 @@ GET http://localhost:3000/todos?category=WORK&status=DONE
 
 ###
 
-GET http://localhost:3000/todos/5
+GET http://localhost:3000/todos/7
 
 ###
 
 GET http://localhost:3000/agenda?date=2021-4-2
+
+###
+
+POST http://localhost:3000/todos/
+Content-Type: application/json
+
+{
+ "id": 7,
+ "todo": "Finalize event theme",
+ "priority": "LOW",
+ "status": "TO DO",
+ "category": "HOME",
+ "dueDate": "2021-02-22"
+}
