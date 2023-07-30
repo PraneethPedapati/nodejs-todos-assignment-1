@@ -1,1 +1,1 @@
-GET http://localhost:3000/todos?status=IN%20PROGRESS
+GET http://localhost:3000/todos?category=WORK&status=DONE
