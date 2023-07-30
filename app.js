@@ -46,3 +46,14 @@ app.get("/todos", async (req, res) => {
   let resp = await db.all(sql);
   res.send(resp);
 });
+
+app.get("/todos/:todoId", async (req, res) => {
+  const { todoId } = req.params;
+
+  const sql = `SELECT id, todo, priority, status, category, due_date AS dueDate FROM todo
+   WHERE id = ${todoId}`;
+  console.log("sql", sql);
+
+  let resp = await db.get(sql);
+  res.send(resp);
+});
