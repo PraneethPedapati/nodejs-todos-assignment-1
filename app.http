@@ -30,3 +30,7 @@ Content-Type: application/json
 {
  "category": "HOME"
 }
+
+###
+
+DELETE http://localhost:3000/todos/6

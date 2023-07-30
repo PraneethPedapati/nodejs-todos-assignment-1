@@ -127,3 +127,12 @@ app.put("/todos/:todoId", async (req, res) => {
   resp = await db.run(sql);
   res.send(`${respMessage} Updated`);
 });
+
+app.delete("/todos/:todoId", async (req, res) => {
+  const { todoId } = req.params;
+
+  const sql = `DELETE FROM todo WHERE id = ${todoId}`;
+
+  let resp = await db.run(sql);
+  res.send("Todo Deleted");
+});
