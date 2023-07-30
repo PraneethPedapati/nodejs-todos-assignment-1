@@ -85,3 +85,45 @@ app.post("/todos/", async (req, res) => {
   let resp = await db.run(sql);
   res.send("Todo Successfully Added");
 });
+
+app.put("/todos/:todoId", async (req, res) => {
+  const todoDetails = req.body;
+  const { todoId } = req.params;
+  const { todo, status, category, dueDate, priority } = todoDetails;
+  const labelMap = {
+    status: "Status",
+    todo: "Todo",
+    category: "Category",
+    dueDate: "Due Date",
+    priority: "Priority",
+  };
+
+  let respMessage = null;
+
+  if (status) {
+    respMessage = labelMap.status;
+  } else if (todo) {
+    respMessage = labelMap.todo;
+  } else if (category) {
+    respMessage = labelMap.category;
+  } else if (dueDate) {
+    respMessage = labelMap.dueDate;
+  } else if (priority) {
+    respMessage = labelMap.priority;
+  }
+
+  let getSql = `SELECT id, todo, priority, status, category, due_date AS dueDate FROM todo WHERE id = ${todoId}`;
+
+  let resp = await db.get(getSql);
+
+  let sql = `UPDATE todo
+      SET todo = '${todo ? todo : resp.todo}',
+          status = '${status ? status : resp.status}',
+          priority = '${priority ? priority : resp.priority}',
+          category ='${category ? category : resp.category}',
+          due_date = '${dueDate ? dueDate : resp.dueDate}'
+          WHERE id = ${resp.id}`;
+
+  resp = await db.run(sql);
+  res.send(`${respMessage} Updated`);
+});

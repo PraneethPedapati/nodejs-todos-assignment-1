@@ -2,7 +2,7 @@ GET http://localhost:3000/todos?category=WORK&status=DONE
 
 ###
 
-GET http://localhost:3000/todos/7
+GET http://localhost:3000/todos/1
 
 ###
 
@@ -20,4 +20,13 @@ Content-Type: application/json
  "status": "TO DO",
  "category": "HOME",
  "dueDate": "2021-02-22"
+}
+
+###
+
+PUT http://localhost:3000/todos/1
+Content-Type: application/json
+
+{
+ "category": "HOME"
 }
