@@ -3,3 +3,7 @@ GET http://localhost:3000/todos?category=WORK&status=DONE
 ###
 
 GET http://localhost:3000/todos/5
+
+###
+
+GET http://localhost:3000/agenda?date=2021-4-2

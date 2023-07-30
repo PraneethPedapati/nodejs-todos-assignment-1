@@ -2,6 +2,7 @@ const express = require("express");
 const { open } = require("sqlite");
 const sqlite3 = require("sqlite3");
 const path = require("path");
+const { format } = require("date-fns");
 
 const app = express();
 app.use(express.json());
@@ -41,8 +42,6 @@ app.get("/todos", async (req, res) => {
   AND category LIKE "${category}"
   AND todo LIKE "${search_q}"`;
 
-  console.log("sql", sql);
-
   let resp = await db.all(sql);
   res.send(resp);
 });
@@ -52,8 +51,19 @@ app.get("/todos/:todoId", async (req, res) => {
 
   const sql = `SELECT id, todo, priority, status, category, due_date AS dueDate FROM todo
    WHERE id = ${todoId}`;
-  console.log("sql", sql);
 
   let resp = await db.get(sql);
+  res.send(resp);
+});
+
+app.get("/agenda", async (req, res) => {
+  let { date } = req.query;
+
+  date = date ? format(new Date(date), "yyyy-MM-dd") : "%%";
+
+  const sql = `SELECT id, todo, priority, status, category, due_date AS dueDate FROM todo
+  WHERE dueDate LIKE "${date}"`;
+
+  let resp = await db.all(sql);
   res.send(resp);
 });
