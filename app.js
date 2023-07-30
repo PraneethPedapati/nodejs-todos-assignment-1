@@ -7,6 +7,8 @@ const { format } = require("date-fns");
 const app = express();
 app.use(express.json());
 
+module.exports = app;
+
 const dbPath = path.join(__dirname, "todoApplication.db");
 let db = null;
 
@@ -28,6 +30,10 @@ const initializeDBAndServer = async () => {
 
 initializeDBAndServer();
 
+const validStatus = ["TO DO", "IN PROGRESS", "DONE"];
+const validCategory = ["WORK", "HOME", "LEARNING"];
+const validPriority = ["HIGH", "MEDIUM", "LOW"];
+
 app.get("/todos", async (req, res) => {
   let { status, priority, category, search_q } = req.query;
 
@@ -36,11 +42,23 @@ app.get("/todos", async (req, res) => {
   category = category ? category : "%%";
   search_q = search_q ? search_q : "%%";
 
+  if (status && !validStatus.includes(status)) {
+    res.status(400).send("Invalid Todo Status");
+  }
+
+  if (priority && !validPriority.includes(status)) {
+    res.status(400).send("Invalid Todo Priority");
+  }
+
+  if (category && !validCategory.includes(category)) {
+    res.status(400).send("Invalid Todo Category");
+  }
+
   const sql = `SELECT id, todo, priority, status, category, due_date AS dueDate FROM todo
   WHERE status LIKE "${status}"
   AND priority LIKE "${priority}"
   AND category LIKE "${category}"
-  AND todo LIKE "${search_q}"`;
+  AND todo LIKE "%${search_q}%"`;
 
   let resp = await db.all(sql);
   res.send(resp);
