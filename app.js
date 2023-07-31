@@ -76,7 +76,7 @@ app.get("/todos/:todoId", async (req, res) => {
 app.get("/agenda", async (req, res) => {
   let { date } = req.query;
 
-  if (!isValid(new Date(date))) {
+  if (data && !isValid(new Date(date))) {
     res.status(400).send("Invalid Due Date");
   } else {
     date = date ? format(new Date(date), "yyyy-MM-dd") : "";
@@ -98,7 +98,7 @@ app.post("/todos/", async (req, res) => {
     res.status(400).send("Invalid Todo Priority");
   } else if (category && !validCategory.includes(category)) {
     res.status(400).send("Invalid Todo Category");
-  } else if (!isValid(new Date(dueDate))) {
+  } else if (dueDate && !isValid(new Date(dueDate))) {
     res.status(400).send("Invalid Due Date");
   } else {
     dueDate = format(new Date(dueDate), "yyyy-MM-dd");
