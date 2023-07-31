@@ -121,7 +121,7 @@ app.post("/todos/", async (req, res) => {
 app.put("/todos/:todoId", async (req, res) => {
   const todoDetails = req.body;
   const { todoId } = req.params;
-  const { todo, status, category, dueDate, priority } = todoDetails;
+  let { todo, status, category, dueDate, priority } = todoDetails;
   const labelMap = {
     status: "Status",
     todo: "Todo",
@@ -144,11 +144,22 @@ app.put("/todos/:todoId", async (req, res) => {
     respMessage = labelMap.priority;
   }
 
-  let getSql = `SELECT id, todo, priority, status, category, due_date AS dueDate FROM todo WHERE id = ${todoId}`;
+  if (status && !validStatus.includes(status)) {
+    res.status(400).send("Invalid Todo Status");
+  } else if (priority && !validPriority.includes(priority)) {
+    res.status(400).send("Invalid Todo Priority");
+  } else if (category && !validCategory.includes(category)) {
+    res.status(400).send("Invalid Todo Category");
+  } else if (dueDate && !isValid(new Date(dueDate))) {
+    res.status(400).send("Invalid Due Date");
+  } else {
+    dueDate = dueDate ? format(new Date(dueDate), "yyyy-MM-dd") : null;
 
-  let resp = await db.get(getSql);
+    let getSql = `SELECT id, todo, priority, status, category, due_date AS dueDate FROM todo WHERE id = ${todoId}`;
 
-  let sql = `UPDATE todo
+    let resp = await db.get(getSql);
+
+    let sql = `UPDATE todo
       SET todo = '${todo ? todo : resp.todo}',
           status = '${status ? status : resp.status}',
           priority = '${priority ? priority : resp.priority}',
@@ -156,8 +167,9 @@ app.put("/todos/:todoId", async (req, res) => {
           due_date = '${dueDate ? dueDate : resp.dueDate}'
           WHERE id = ${resp.id}`;
 
-  resp = await db.run(sql);
-  res.send(`${respMessage} Updated`);
+    resp = await db.run(sql);
+    res.send(`${respMessage} Updated`);
+  }
 });
 
 app.delete("/todos/:todoId", async (req, res) => {
