@@ -1,4 +1,4 @@
-GET http://localhost:3000/todos?category=WORK&status=DONE
+GET http://localhost:3000/todos?status=HIGH
 
 ###
 
@@ -6,7 +6,7 @@ GET http://localhost:3000/todos/1
 
 ###
 
-GET http://localhost:3000/agenda?date=2021-4-2
+GET http://localhost:3000/agenda?date=2021-4-f
 
 ###
 
@@ -14,12 +14,12 @@ POST http://localhost:3000/todos/
 Content-Type: application/json
 
 {
- "id": 7,
- "todo": "Finalize event theme",
- "priority": "LOW",
- "status": "TO DO",
- "category": "HOME",
- "dueDate": "2021-02-22"
+ "id": 8,
+ "todo": "Learn Node JS",
+ "priority": "HIGH",
+ "status": "IN PROGRESS",
+ "category": "LEARNING",
+ "dueDate": "2021-03-13"
 }
 
 ###

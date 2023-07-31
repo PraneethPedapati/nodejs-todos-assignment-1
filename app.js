@@ -3,6 +3,7 @@ const { open } = require("sqlite");
 const sqlite3 = require("sqlite3");
 const path = require("path");
 const { format } = require("date-fns");
+const isValid = require("date-fns/isValid");
 
 const app = express();
 app.use(express.json());
@@ -36,32 +37,30 @@ const validPriority = ["HIGH", "MEDIUM", "LOW"];
 
 app.get("/todos", async (req, res) => {
   let { status, priority, category, search_q } = req.query;
-
-  status = status ? status : "%%";
-  priority = priority ? priority : "%%";
-  category = category ? category : "%%";
-  search_q = search_q ? search_q : "%%";
+  console.log(priority);
+  console.log(validPriority[0]);
 
   if (status && !validStatus.includes(status)) {
     res.status(400).send("Invalid Todo Status");
-  }
-
-  if (priority && !validPriority.includes(status)) {
+  } else if (priority && !validPriority.includes(priority)) {
     res.status(400).send("Invalid Todo Priority");
-  }
-
-  if (category && !validCategory.includes(category)) {
+  } else if (category && !validCategory.includes(category)) {
     res.status(400).send("Invalid Todo Category");
-  }
+  } else {
+    status = status ? status : "%%";
+    priority = priority ? priority : "%%";
+    category = category ? category : "%%";
+    search_q = search_q ? search_q : "%%";
 
-  const sql = `SELECT id, todo, priority, status, category, due_date AS dueDate FROM todo
+    const sql = `SELECT id, todo, priority, status, category, due_date AS dueDate FROM todo
   WHERE status LIKE "${status}"
   AND priority LIKE "${priority}"
   AND category LIKE "${category}"
   AND todo LIKE "%${search_q}%"`;
 
-  let resp = await db.all(sql);
-  res.send(resp);
+    let resp = await db.all(sql);
+    res.send(resp);
+  }
 });
 
 app.get("/todos/:todoId", async (req, res) => {
@@ -77,20 +76,34 @@ app.get("/todos/:todoId", async (req, res) => {
 app.get("/agenda", async (req, res) => {
   let { date } = req.query;
 
-  date = date ? format(new Date(date), "yyyy-MM-dd") : "%%";
+  if (!isValid(new Date(date))) {
+    res.status(400).send("Invalid Due Date");
+  } else {
+    date = date ? format(new Date(date), "yyyy-MM-dd") : "";
+    const sql = `SELECT id, todo, priority, status, category, due_date AS dueDate FROM todo
+  WHERE dueDate = "${date}"`;
 
-  const sql = `SELECT id, todo, priority, status, category, due_date AS dueDate FROM todo
-  WHERE dueDate LIKE "${date}"`;
-
-  let resp = await db.all(sql);
-  res.send(resp);
+    let resp = await db.all(sql);
+    res.send(resp);
+  }
 });
 
 app.post("/todos/", async (req, res) => {
   const todoDetails = req.body;
-  const { id, todo, status, category, dueDate, priority } = todoDetails;
+  let { id, todo, status, category, dueDate, priority } = todoDetails;
 
-  let sql = `INSERT INTO todo (id, todo, status ,priority, category, due_date)
+  if (status && !validStatus.includes(status)) {
+    res.status(400).send("Invalid Todo Status");
+  } else if (priority && !validPriority.includes(priority)) {
+    res.status(400).send("Invalid Todo Priority");
+  } else if (category && !validCategory.includes(category)) {
+    res.status(400).send("Invalid Todo Category");
+  } else if (!isValid(new Date(dueDate))) {
+    res.status(400).send("Invalid Due Date");
+  } else {
+    dueDate = format(new Date(dueDate), "yyyy-MM-dd");
+
+    let sql = `INSERT INTO todo (id, todo, status ,priority, category, due_date)
     VALUES (
         ${id},
         '${todo}',
@@ -100,8 +113,9 @@ app.post("/todos/", async (req, res) => {
         '${dueDate}'
         )`;
 
-  let resp = await db.run(sql);
-  res.send("Todo Successfully Added");
+    let resp = await db.run(sql);
+    res.send("Todo Successfully Added");
+  }
 });
 
 app.put("/todos/:todoId", async (req, res) => {
